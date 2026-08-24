@@ -1,0 +1,361 @@
+{
+  "datasets": [
+    {
+      "name": "5fcd9fc5",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "USE CATALOG `workspace`;\n",
+        "USE SCHEMA `default`;\n",
+        "\n",
+        "SELECT\n",
+        "  CASE \n",
+        "    WHEN customer_age < 30 THEN 'Under 30'\n",
+        "    WHEN customer_age BETWEEN 30 AND 39 THEN '30-39'\n",
+        "    WHEN customer_age BETWEEN 40 AND 49 THEN '40-49'\n",
+        "    WHEN customer_age BETWEEN 50 AND 59 THEN '50-59'\n",
+        "    ELSE '60 and over'\n",
+        "  END AS age_group,\n",
+        "  COUNT(DISTINCT customer_number) AS total_customers,\n",
+        "  ROUND(SUM(total_customer_spend), 2) AS total_revenue,\n",
+        "  ROUND(AVG(total_customer_spend), 2) AS average_spend_per_customer\n",
+        "FROM (\n",
+        "  SELECT\n",
+        "    c.customer_number,\n",
+        "    YEAR(CURRENT_DATE()) - YEAR(c.birthdate) AS customer_age,\n",
+        "    SUM(f.sales_amount) AS total_customer_spend\n",
+        "  FROM sales_project_db.silver.fact_sales f\n",
+        "  INNER JOIN sales_project_db.silver.dim_customers c\n",
+        "    ON f.customer_key = c.customer_key\n",
+        "  WHERE c.birthdate IS NOT NULL\n",
+        "  GROUP BY 1, 2\n",
+        ")\n",
+        "GROUP BY 1\n",
+        "ORDER BY age_group ASC;\n"
+      ]
+    },
+    {
+      "name": "184e616f",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "USE CATALOG `workspace`;\n",
+        "USE SCHEMA `default`;\n",
+        "\n",
+        "SELECT\n",
+        "  DATE_TRUNC('month', f.order_date) AS order_month,\n",
+        "  COUNT(DISTINCT f.order_number) AS total_orders,\n",
+        "  ROUND(SUM(f.sales_amount), 2) AS total_revenue,\n",
+        "  SUM(f.quantity) AS total_items_sold,\n",
+        "  ROUND(SUM(f.sales_amount) / COUNT(DISTINCT f.order_number), 2) AS average_ticket\n",
+        "FROM sales_project_db.silver.fact_sales f\n",
+        "WHERE f.order_date IS NOT NULL \n",
+        "GROUP BY 1\n",
+        "ORDER BY order_month ASC;"
+      ]
+    },
+    {
+      "name": "d81fee62",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "USE CATALOG `workspace`;\n",
+        "USE SCHEMA `default`;\n",
+        "\n",
+        "SELECT\n",
+        "  p.category AS product_category,\n",
+        "  p.product_name,\n",
+        "  COUNT(*) AS total_sales_records,\n",
+        "  SUM(f.quantity) AS units_sold,\n",
+        "  ROUND(SUM(f.sales_amount), 2) AS total_revenue\n",
+        "FROM sales_project_db.silver.fact_sales f\n",
+        "INNER JOIN sales_project_db.silver.dim_products p\n",
+        "  ON f.product_key = p.product_key\n",
+        "GROUP BY 1, 2\n",
+        "ORDER BY total_revenue DESC;\n"
+      ]
+    },
+    {
+      "name": "1b8ec979",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "USE CATALOG `workspace`;\n",
+        "USE SCHEMA `default`;\n",
+        "\n",
+        "SELECT\n",
+        "  CASE \n",
+        "    WHEN customer_age < 30 THEN 'Under 30'\n",
+        "    WHEN customer_age BETWEEN 30 AND 39 THEN '30-39'\n",
+        "    WHEN customer_age BETWEEN 40 AND 49 THEN '40-49'\n",
+        "    WHEN customer_age BETWEEN 50 AND 59 THEN '50-59'\n",
+        "    ELSE '60 and over'\n",
+        "  END AS age_group,\n",
+        "  COUNT(DISTINCT customer_number) AS total_customers,\n",
+        "  ROUND(SUM(total_customer_spend), 2) AS total_revenue,\n",
+        "  ROUND(AVG(total_customer_spend), 2) AS average_spend_per_customer\n",
+        "FROM (\n",
+        "  SELECT\n",
+        "    c.customer_number,\n",
+        "    YEAR(CURRENT_DATE()) - YEAR(c.birthdate) AS customer_age,\n",
+        "    SUM(f.sales_amount) AS total_customer_spend\n",
+        "  FROM sales_project_db.silver.fact_sales f\n",
+        "  INNER JOIN sales_project_db.silver.dim_customers c\n",
+        "    ON f.customer_key = c.customer_key\n",
+        "  WHERE c.birthdate IS NOT NULL\n",
+        "  GROUP BY 1, 2\n",
+        ")\n",
+        "GROUP BY 1\n",
+        "ORDER BY age_group ASC;\n"
+      ]
+    }
+  ],
+  "pages": [
+    {
+      "name": "f55b4664",
+      "displayName": "Sales & Customer Insights EDA",
+      "layout": [
+        {
+          "widget": {
+            "name": "93c0a0b5",
+            "multilineTextboxSpec": {
+              "lines": [
+                "# Sales & Customer Insights - EDA Project\n",
+                "\n",
+                "### Project Overview\n",
+                "\n",
+                "This dashboard presents an Exploratory Data Analysis (EDA) built entirely on a custom Databricks Lakehouse architecture (`sales_project_db`). Raw data was ingested into a Bronze schema and subsequently modeled into an optimized Silver layer using Databricks SQL to uncover strategic business insights.\n",
+                "\n",
+                "### Key Insights Tracked\n",
+                "\n",
+                "* **Sales Performance:** Historical revenue tracking and average ticket growth.\n",
+                "* **Product Catalog:** Identification of high-value categories versus high-volume items.\n",
+                "* **Customer Demographics:** Customer purchasing behavior segmented by age demographics."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 0,
+            "width": 12,
+            "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "266f6d52",
+            "queries": [
+              {
+                "name": "ecb5cac86805430bbda31d0df0405767",
+                "query": {
+                  "datasetName": "184e616f",
+                  "fields": [
+                    {
+                      "name": "column_bc0ff544121",
+                      "expression": "DATE_TRUNC(\"MONTH\", `order_month`)"
+                    },
+                    {
+                      "name": "column_bc0ff544124",
+                      "expression": "SUM(`total_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Sales Performance & Revenue",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Revenue ($)\"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"order_month\",\"id\":\"column_bc0ff544121\",\"transform\":\"MONTH_LEVEL\"},\"y\":[{\"column\":\"total_revenue\",\"id\":\"column_bc0ff544124\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"line\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_bc0ff544124\":{\"type\":\"line\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":false,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Month\"},\"type\":\"-\"}}",
+                "query_name": "ecb5cac86805430bbda31d0df0405767"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "d111b707",
+            "queries": [
+              {
+                "name": "bf08634ad3ed43ee96210ecf8dca2206",
+                "query": {
+                  "datasetName": "d81fee62",
+                  "fields": [
+                    {
+                      "name": "product_category",
+                      "expression": "`product_category`"
+                    },
+                    {
+                      "name": "column_bc0ff544149",
+                      "expression": "SUM(`total_sales_records`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Sales Volume by Category",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Sales Volume \"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"product_category\",\"id\":\"column_bc0ff544147\"},\"y\":[{\"column\":\"total_sales_records\",\"id\":\"column_bc0ff544149\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_bc0ff544149\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Product Category\"},\"type\":\"-\"}}",
+                "query_name": "bf08634ad3ed43ee96210ecf8dca2206"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "cd6f9f80",
+            "queries": [
+              {
+                "name": "main_query",
+                "query": {
+                  "datasetName": "d81fee62",
+                  "fields": [
+                    {
+                      "name": "product_category",
+                      "expression": "`product_category`"
+                    },
+                    {
+                      "name": "sum(total_revenue)",
+                      "expression": "SUM(`total_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 3,
+              "frame": {
+                "title": "Revenue by Category",
+                "showTitle": true
+              },
+              "mark": {
+                "layout": "group"
+              },
+              "widgetType": "bar",
+              "encodings": {
+                "x": {
+                  "fieldName": "product_category",
+                  "axis": {
+                    "title": "Product Category"
+                  },
+                  "displayName": "Product Category",
+                  "scale": {
+                    "type": "categorical"
+                  }
+                },
+                "y": {
+                  "fieldName": "sum(total_revenue)",
+                  "axis": {
+                    "title": "Total Revenue"
+                  },
+                  "displayName": "Total Revenue",
+                  "scale": {
+                    "type": "quantitative"
+                  }
+                },
+                "label": {
+                  "show": true
+                }
+              },
+              "data": {
+                "queryName": "main_query"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 10,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "b2d7b3fc",
+            "queries": [
+              {
+                "name": "1c8c9dbcf9c340c38338df44932008b3",
+                "query": {
+                  "datasetName": "1b8ec979",
+                  "fields": [
+                    {
+                      "name": "age_group",
+                      "expression": "`age_group`"
+                    },
+                    {
+                      "name": "column_26b595d216",
+                      "expression": "SUM(`total_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Customer Profile & Behavior",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Total Revenue\"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"age_group\",\"id\":\"column_26b595d214\"},\"y\":[{\"column\":\"total_revenue\",\"id\":\"column_26b595d216\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_26b595d216\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Age Group\"},\"type\":\"-\"}}",
+                "query_name": "1c8c9dbcf9c340c38338df44932008b3"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "eb59a743",
+            "multilineTextboxSpec": {
+              "lines": [
+                "### Executive Summary & Business Insights\n",
+                "\n",
+                "1. **Revenue Growth Trend:** The historical data demonstrates consistent, long-term revenue growth. Notable cyclical seasonal spikes are present towards the end of each fiscal year.\n",
+                "2. **Product Performance Discrepancy:**\n",
+                "\n",
+                "* **Bikes** act as the primary revenue engine, generating over $20M in total sales.\n",
+                "* **Accessories** dominate logistics operations, driving the highest operational transaction volume with over 30,000 individual sales recorded.\n",
+                "\n",
+                "3. **Target Demographics:** The highest-value customer segments are concentrated in the older demographics (**50-59** and **60 and over** groups), with both cohorts yielding more than $10M each in total revenue."
+              ]
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 16,
+            "width": 12,
+            "height": 4
+          }
+        }
+      ],
+      "pageType": "PAGE_TYPE_CANVAS",
+      "layoutVersion": "GRID_V1"
+    }
+  ],
+  "uiSettings": {
+    "theme": {
+      "widgetHeaderAlignment": "ALIGNMENT_UNSPECIFIED"
+    },
+    "applyModeEnabled": false
+  }
+}
