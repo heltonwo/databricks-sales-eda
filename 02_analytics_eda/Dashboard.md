@@ -1,6 +1,6 @@
 # 📊 Sales & Customer Insights — Dashboard
 
-Interactive dashboard built on Databricks SQL, powered by the **Silver** layer 
+## Interactive dashboard built on Databricks SQL, powered by the **Silver** layer 
 of the Lakehouse (`sales_project_db.silver`), tracking sales performance, 
 product catalog trends, and customer behavior.
 
