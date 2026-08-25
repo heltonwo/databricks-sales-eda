@@ -2,7 +2,7 @@
   "datasets": [
     {
       "name": "5fcd9fc5",
-      "displayName": "Untitled dataset",
+      "displayName": "Customer Spend Analysis Grouped by Age Brackets",
       "queryLines": [
         "USE CATALOG `workspace`;\n",
         "USE SCHEMA `default`;\n",
