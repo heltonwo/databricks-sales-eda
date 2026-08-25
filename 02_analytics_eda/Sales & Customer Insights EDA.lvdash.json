@@ -104,6 +104,59 @@
         "GROUP BY 1\n",
         "ORDER BY age_group ASC;\n"
       ]
+    },
+    {
+      "name": "294de827",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "USE CATALOG `workspace`;\n",
+        "USE SCHEMA `default`;\n",
+        "\n",
+        "SELECT\n",
+        "  CASE \n",
+        "    WHEN customer_age < 30 THEN 'Under 30'\n",
+        "    WHEN customer_age BETWEEN 30 AND 39 THEN '30-39'\n",
+        "    WHEN customer_age BETWEEN 40 AND 49 THEN '40-49'\n",
+        "    WHEN customer_age BETWEEN 50 AND 59 THEN '50-59'\n",
+        "    ELSE '60 and over'\n",
+        "  END AS age_group,\n",
+        "  COUNT(DISTINCT customer_number) AS total_customers,\n",
+        "  ROUND(SUM(total_customer_spend), 2) AS total_revenue,\n",
+        "  ROUND(AVG(total_customer_spend), 2) AS average_spend_per_customer\n",
+        "FROM (\n",
+        "  SELECT\n",
+        "    c.customer_number,\n",
+        "    YEAR(CURRENT_DATE()) - YEAR(c.birthdate) AS customer_age,\n",
+        "    SUM(f.sales_amount) AS total_customer_spend\n",
+        "  FROM sales_project_db.silver.fact_sales f\n",
+        "  INNER JOIN sales_project_db.silver.dim_customers c\n",
+        "    ON f.customer_key = c.customer_key\n",
+        "  WHERE c.birthdate IS NOT NULL\n",
+        "  GROUP BY c.customer_number, customer_age\n",
+        ")\n",
+        "GROUP BY age_group\n",
+        "ORDER BY age_group ASC;\n"
+      ]
+    },
+    {
+      "name": "4d1d447d",
+      "displayName": "Untitled dataset",
+      "queryLines": [
+        "USE CATALOG `sales_project_db`;\n",
+        "USE SCHEMA `silver`;\n",
+        "\n",
+        "SELECT\n",
+        "  p.category AS product_category,\n",
+        "  p.product_name,\n",
+        "  COUNT(*) AS total_sales_records,\n",
+        "  SUM(f.quantity) AS units_sold,\n",
+        "  ROUND(SUM(f.sales_amount), 2) AS total_revenue\n",
+        "FROM sales_project_db.silver.fact_sales f\n",
+        "INNER JOIN sales_project_db.silver.dim_products p\n",
+        "  ON f.product_key = p.product_key\n",
+        "GROUP BY product_category, p.product_name\n",
+        "ORDER BY total_revenue DESC;\n"
+      ]
     }
   ],
   "pages": [
@@ -178,153 +231,6 @@
         },
         {
           "widget": {
-            "name": "d111b707",
-            "queries": [
-              {
-                "name": "bf08634ad3ed43ee96210ecf8dca2206",
-                "query": {
-                  "datasetName": "d81fee62",
-                  "fields": [
-                    {
-                      "name": "product_category",
-                      "expression": "`product_category`"
-                    },
-                    {
-                      "name": "column_bc0ff544149",
-                      "expression": "SUM(`total_sales_records`)"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              }
-            ],
-            "spec": {
-              "version": 0,
-              "viz_spec": {
-                "display_name": "Sales Volume by Category",
-                "viz_type": "CHART",
-                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Sales Volume \"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"product_category\",\"id\":\"column_bc0ff544147\"},\"y\":[{\"column\":\"total_sales_records\",\"id\":\"column_bc0ff544149\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_bc0ff544149\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Product Category\"},\"type\":\"-\"}}",
-                "query_name": "bf08634ad3ed43ee96210ecf8dca2206"
-              }
-            }
-          },
-          "position": {
-            "x": 0,
-            "y": 10,
-            "width": 6,
-            "height": 6
-          }
-        },
-        {
-          "widget": {
-            "name": "cd6f9f80",
-            "queries": [
-              {
-                "name": "main_query",
-                "query": {
-                  "datasetName": "d81fee62",
-                  "fields": [
-                    {
-                      "name": "product_category",
-                      "expression": "`product_category`"
-                    },
-                    {
-                      "name": "sum(total_revenue)",
-                      "expression": "SUM(`total_revenue`)"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              }
-            ],
-            "spec": {
-              "version": 3,
-              "frame": {
-                "title": "Revenue by Category",
-                "showTitle": true
-              },
-              "mark": {
-                "layout": "group"
-              },
-              "widgetType": "bar",
-              "encodings": {
-                "x": {
-                  "fieldName": "product_category",
-                  "axis": {
-                    "title": "Product Category"
-                  },
-                  "displayName": "Product Category",
-                  "scale": {
-                    "type": "categorical"
-                  }
-                },
-                "y": {
-                  "fieldName": "sum(total_revenue)",
-                  "axis": {
-                    "title": "Total Revenue"
-                  },
-                  "displayName": "Total Revenue",
-                  "scale": {
-                    "type": "quantitative"
-                  }
-                },
-                "label": {
-                  "show": true
-                }
-              },
-              "data": {
-                "queryName": "main_query"
-              }
-            }
-          },
-          "position": {
-            "x": 6,
-            "y": 10,
-            "width": 6,
-            "height": 6
-          }
-        },
-        {
-          "widget": {
-            "name": "b2d7b3fc",
-            "queries": [
-              {
-                "name": "1c8c9dbcf9c340c38338df44932008b3",
-                "query": {
-                  "datasetName": "1b8ec979",
-                  "fields": [
-                    {
-                      "name": "age_group",
-                      "expression": "`age_group`"
-                    },
-                    {
-                      "name": "column_26b595d216",
-                      "expression": "SUM(`total_revenue`)"
-                    }
-                  ],
-                  "disaggregated": false
-                }
-              }
-            ],
-            "spec": {
-              "version": 0,
-              "viz_spec": {
-                "display_name": "Customer Profile & Behavior",
-                "viz_type": "CHART",
-                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Total Revenue\"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"age_group\",\"id\":\"column_26b595d214\"},\"y\":[{\"column\":\"total_revenue\",\"id\":\"column_26b595d216\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_26b595d216\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Age Group\"},\"type\":\"-\"}}",
-                "query_name": "1c8c9dbcf9c340c38338df44932008b3"
-              }
-            }
-          },
-          "position": {
-            "x": 6,
-            "y": 4,
-            "width": 6,
-            "height": 6
-          }
-        },
-        {
-          "widget": {
             "name": "eb59a743",
             "multilineTextboxSpec": {
               "lines": [
@@ -345,6 +251,123 @@
             "y": 16,
             "width": 12,
             "height": 4
+          }
+        },
+        {
+          "widget": {
+            "name": "844bf415",
+            "queries": [
+              {
+                "name": "1c8c9dbcf9c340c38338df44932008b3",
+                "query": {
+                  "datasetName": "294de827",
+                  "fields": [
+                    {
+                      "name": "age_group",
+                      "expression": "`age_group`"
+                    },
+                    {
+                      "name": "column_26b595d216",
+                      "expression": "SUM(`total_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Customer Profile & Behavior",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Total Revenue ($)\"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"age_group\",\"id\":\"column_26b595d214\"},\"y\":[{\"column\":\"total_revenue\",\"id\":\"column_26b595d216\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_26b595d216\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Age Group\"},\"type\":\"-\"}}",
+                "query_name": "1c8c9dbcf9c340c38338df44932008b3"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 4,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "30333500",
+            "queries": [
+              {
+                "name": "bf08634ad3ed43ee96210ecf8dca2206",
+                "query": {
+                  "datasetName": "4d1d447d",
+                  "fields": [
+                    {
+                      "name": "product_category",
+                      "expression": "`product_category`"
+                    },
+                    {
+                      "name": "column_bc0ff544149",
+                      "expression": "SUM(`total_sales_records`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Sales Volume by Category",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Sales Volume ($)\"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"product_category\",\"id\":\"column_bc0ff544147\"},\"y\":[{\"column\":\"total_sales_records\",\"id\":\"column_bc0ff544149\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_bc0ff544149\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Product Category\"},\"type\":\"-\"}}",
+                "query_name": "bf08634ad3ed43ee96210ecf8dca2206"
+              }
+            }
+          },
+          "position": {
+            "x": 0,
+            "y": 10,
+            "width": 6,
+            "height": 6
+          }
+        },
+        {
+          "widget": {
+            "name": "4f558250",
+            "queries": [
+              {
+                "name": "bf08634ad3ed43ee96210ecf8dca2206",
+                "query": {
+                  "datasetName": "4d1d447d",
+                  "fields": [
+                    {
+                      "name": "product_category",
+                      "expression": "`product_category`"
+                    },
+                    {
+                      "name": "column_bc0ff544156",
+                      "expression": "SUM(`total_revenue`)"
+                    }
+                  ],
+                  "disaggregated": false
+                }
+              }
+            ],
+            "spec": {
+              "version": 0,
+              "viz_spec": {
+                "display_name": "Revenue by Category",
+                "viz_type": "CHART",
+                "serialized_options": "{\"isAggregationOn\":true,\"series\":{\"error_y\":{\"type\":\"data\",\"visible\":true},\"stacking\":null},\"coefficient\":1,\"yAxis\":[{\"title\":{\"text\":\"Total Revenue ($)\"},\"type\":\"-\"},{\"opposite\":true,\"type\":\"-\"}],\"columnConfigurationMap\":{\"x\":{\"column\":\"product_category\",\"id\":\"column_bc0ff544154\"},\"y\":[{\"column\":\"total_revenue\",\"id\":\"column_bc0ff544156\",\"transform\":\"SUM\"}]},\"alignYAxesAtZero\":true,\"direction\":{\"type\":\"counterclockwise\"},\"swappedAxes\":false,\"percentFormat\":\"0[.]00%\",\"textFormat\":\"\",\"legend\":{\"traceorder\":\"normal\"},\"globalSeriesType\":\"column\",\"version\":2,\"sizemode\":\"diameter\",\"seriesOptions\":{\"column_bc0ff544156\":{\"type\":\"column\",\"yAxis\":0}},\"error_y\":{\"type\":\"data\",\"visible\":true},\"sortX\":true,\"showDataLabels\":true,\"missingValuesAsZero\":true,\"useAggregationsUi\":true,\"numberFormat\":\"0,0.[00000]\",\"dateTimeFormat\":\"DD/MM/YYYY HH:mm\",\"sortY\":true,\"valuesOptions\":{},\"xAxis\":{\"labels\":{\"enabled\":true},\"title\":{\"text\":\"Product Category \"},\"type\":\"-\"}}",
+                "query_name": "bf08634ad3ed43ee96210ecf8dca2206"
+              }
+            }
+          },
+          "position": {
+            "x": 6,
+            "y": 10,
+            "width": 6,
+            "height": 6
           }
         }
       ],
